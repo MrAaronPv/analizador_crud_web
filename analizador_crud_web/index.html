@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analizador CRUD | Proyecto USIL</title>
+<style>
+:root{--bg:#0b1220;--panel:#121d30;--panel2:#17243a;--line:#263750;--text:#e8eef8;--muted:#9aabc2;--gold:#d6ad63;--green:#35c98a;--red:#ff727c;--blue:#73b7ff}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% 0%,#1a2a43 0,#0b1220 42%);color:var(--text);font:15px/1.5 Inter,Segoe UI,Arial,sans-serif}
+header{border-bottom:1px solid var(--line);background:#0b1220dd;position:sticky;top:0;z-index:5;backdrop-filter:blur(12px)}
+.wrap{max-width:1180px;margin:auto;padding:18px 22px}.top{display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{display:flex;align-items:center;gap:12px}.logo{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,#e6c27d,#9c7132);display:grid;place-items:center;color:#111827;font-weight:900;font-size:20px}.brand h1{font-size:17px;margin:0}.brand small{color:var(--muted)}.pill{border:1px solid #31533f;color:#7ee0ad;background:#10271f;padding:7px 11px;border-radius:99px;font-size:12px}
+.hero{padding:35px 0 22px}.eyebrow{color:var(--gold);font-size:12px;letter-spacing:2px;font-weight:800;text-transform:uppercase}.hero h2{font-size:clamp(27px,4vw,42px);line-height:1.1;margin:9px 0}.hero p{max-width:760px;color:var(--muted);margin:0}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:22px 0}.stat,.card{background:linear-gradient(180deg,#152239,#111b2c);border:1px solid var(--line);border-radius:16px}.stat{padding:14px 16px}.stat strong{display:block;font-size:24px}.stat span{font-size:12px;color:var(--muted)}
+.layout{display:grid;grid-template-columns:1.1fr .9fr;gap:16px;align-items:start}.card{padding:20px;margin-bottom:16px}.card h3{margin:0 0 5px;font-size:17px}.sub{color:var(--muted);font-size:13px;margin:0 0 16px}
+label{display:block;font-size:13px;color:#c7d3e4;margin:12px 0 7px}textarea,input{width:100%;background:#0b1423;border:1px solid #30435e;border-radius:11px;color:var(--text);padding:13px;font:inherit;outline:none}textarea{min-height:105px;resize:vertical}textarea:focus,input:focus{border-color:var(--gold);box-shadow:0 0 0 3px #d6ad6320}
+button{border:0;border-radius:10px;padding:11px 15px;font-weight:750;cursor:pointer;transition:.15s}button:hover{transform:translateY(-1px);filter:brightness(1.08)}.primary{background:var(--gold);color:#171717}.secondary{background:#243650;color:#dce8f8;border:1px solid #38506e}.danger{background:#45232d;color:#ffb4bb;border:1px solid #743943}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
+.examples{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.example{font-size:11px;padding:7px 9px;background:#1b2b42;color:#b8cce4;border:1px solid #30445f}
+.status{padding:12px 14px;border-radius:11px;margin-top:14px;font-weight:650}.ok{background:#102b23;color:#8ce7b7;border:1px solid #236246}.bad{background:#321c25;color:#ffadb4;border:1px solid #713541}.info{background:#142941;color:#a8d4ff;border:1px solid #2b527a}
+.tokens{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.token{padding:8px 10px;border:1px solid #36506e;background:#0c1728;border-radius:9px;font-size:12px}.token b{display:block;color:var(--gold);font-size:10px;letter-spacing:.5px}.token span{color:#e4edf9}
+pre{white-space:pre-wrap;word-break:break-word;background:#0a1321;border:1px solid #263a55;padding:13px;border-radius:10px;color:#bcd0e9;font-size:12px;min-height:50px}
+.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:11px 9px;border-bottom:1px solid #263750}th{color:var(--muted);font-weight:600}td{color:#e2eaf5}.empty{text-align:center;color:var(--muted);padding:25px}
+.product-actions{display:flex;gap:6px}.product-actions button{padding:6px 8px;font-size:11px}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.step{padding:10px;background:#0d1829;border:1px solid var(--line);border-radius:10px;text-align:center;font-size:11px;color:var(--muted)}.step b{display:block;color:var(--gold);font-size:12px;margin-bottom:4px}
+footer{text-align:center;color:#71839d;padding:22px;font-size:12px}
+@media(max-width:850px){.layout{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.steps{grid-template-columns:repeat(2,1fr)}.top{align-items:flex-start}.pill{display:none}}
+</style>
+</head>
+<body>
+<header><div class="wrap top"><div class="brand"><div class="logo">Σ</div><div><h1>Analizador léxico y sintáctico</h1><small>Automatización de solicitudes empresariales · CRUD</small></div></div><span class="pill">● Prototipo funcional</span></div></header>
+<main class="wrap">
+<section class="hero"><div class="eyebrow">Proyecto académico · Teoría de la computación</div><h2>De lenguaje natural a<br><span style="color:var(--gold)">operaciones empresariales</span></h2><p>Ingresa una instrucción, revisa sus tokens, valida su estructura y ejecuta operaciones CRUD sobre el catálogo de productos.</p></section>
+<section class="stats">
+<div class="stat"><strong id="count">0</strong><span>Productos registrados</span></div><div class="stat"><strong>4</strong><span>Operaciones CRUD</span></div><div class="stat"><strong id="validCount">0</strong><span>Solicitudes aceptadas</span></div><div class="stat"><strong id="errorCount">0</strong><span>Solicitudes rechazadas</span></div>
+</section>
+<div class="layout">
+<div>
+<section class="card">
+<h3>01. Ingresar solicitud</h3><p class="sub">Escribe una instrucción usando el lenguaje formal definido en el proyecto.</p>
+<label for="command">Solicitud empresarial</label>
+<textarea id="command" spellcheck="false" placeholder='Ejemplo: CREAR PRODUCTO nombre="Laptop"'></textarea>
+<div class="actions"><button class="primary" id="runBtn">▶ Analizar y ejecutar</button><button class="secondary" id="clearBtn">Limpiar</button></div>
+<div class="examples">
+<button class="example" data-cmd='CREAR PRODUCTO nombre="Laptop"'>Crear producto</button>
+<button class="example" data-cmd="CONSULTAR PRODUCTO">Consultar</button>
+<button class="example" data-cmd='ACTUALIZAR PRODUCTO id=1 nombre="Mouse"'>Actualizar</button>
+<button class="example" data-cmd="ELIMINAR PRODUCTO id=1">Eliminar</button>
+<button class="example" data-cmd="CREARR PRODUCTO nombre=&quot;Laptop&quot;">Ejemplo inválido</button>
+</div>
+<div id="result" aria-live="polite"></div>
+</section>
+<section class="card">
+<h3>02. Análisis léxico</h3><p class="sub">Identificación y clasificación de lexemas mediante patrones regulares.</p>
+<div id="tokens" class="tokens"><span class="sub">Los tokens aparecerán aquí después del análisis.</span></div>
+</section>
+<section class="card">
+<h3>03. Análisis sintáctico</h3><p class="sub">Verificación del orden de los tokens según las reglas de la gramática.</p>
+<div id="syntax" class="status info">Esperando una solicitud para validar.</div>
+<label>Representación estructurada</label><pre id="structured">Sin datos todavía.</pre>
+</section>
+</div>
+<div>
+<section class="card">
+<h3>04. Catálogo de productos</h3><p class="sub">Los registros se guardan en este navegador mediante almacenamiento local.</p>
+<div class="tablewrap"><table><thead><tr><th>ID</th><th>Producto</th><th>Acciones</th></tr></thead><tbody id="products"></tbody></table></div>
+<div class="actions"><button class="secondary" id="seedBtn">Cargar datos de ejemplo</button><button class="danger" id="resetBtn">Vaciar catálogo</button></div>
+</section>
+<section class="card">
+<h3>Flujo del procesamiento</h3><p class="sub">Etapas que sigue cada solicitud.</p>
+<div class="steps"><div class="step"><b>1 · Entrada</b>Solicitud del usuario</div><div class="step"><b>2 · Léxico</b>Generación de tokens</div><div class="step"><b>3 · Sintáctico</b>Validación gramatical</div><div class="step"><b>4 · CRUD</b>Ejecución autorizada</div></div>
+</section>
+<section class="card">
+<h3>Reglas admitidas</h3><p class="sub">Sintaxis implementada en este prototipo.</p>
+<pre>CREAR PRODUCTO nombre="Laptop"
+CONSULTAR PRODUCTO
+ACTUALIZAR PRODUCTO id=1 nombre="Mouse"
+ELIMINAR PRODUCTO id=1</pre>
+<p class="sub" style="margin:0">Nota: esta versión implementa el analizador formal y CRUD local. No conecta todavía un modelo de IA generativa ni una base de datos remota.</p>
+</section>
+</div>
+</div>
+</main>
+<footer>Prototipo académico · Analizador léxico y sintáctico asistido por IA · USIL · 2026</footer>
+<script>
+const $ = id => document.getElementById(id);
+let products = JSON.parse(localStorage.getItem('crud_products') || '[]');
+let validCount = 0, errorCount = 0;
+const save = () => { localStorage.setItem('crud_products', JSON.stringify(products)); renderProducts(); };
+function renderProducts(){
+ $('count').textContent=products.length; $('validCount').textContent=validCount; $('errorCount').textContent=errorCount;
+ const body=$('products'); body.innerHTML='';
+ if(!products.length){body.innerHTML='<tr><td colspan="3" class="empty">No hay productos registrados.</td></tr>';return;}
+ products.forEach(p=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${p.id}</td><td></td><td><div class="product-actions"><button class="secondary" data-edit="${p.id}">Editar</button><button class="danger" data-delete="${p.id}">Eliminar</button></div></td>`;tr.children[1].textContent=p.nombre;body.appendChild(tr);});
+ body.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>{const p=products.find(x=>x.id===+b.dataset.edit);$('command').value=`ACTUALIZAR PRODUCTO id=${p.id} nombre="${p.nombre}"`;});
+ body.querySelectorAll('[data-delete]').forEach(b=>b.onclick=()=>{const id=+b.dataset.delete;products=products.filter(p=>p.id!==id);save();show('Producto eliminado desde el catálogo.','ok');});
+}
+function lex(input){
+ const patterns=[
+  ['ESPACIO',/^\\s+/],['CADENA',/^"[^"]*"/],['IGUAL',/^=/],['NUMERO',/^[0-9]+/],['IDENTIFICADOR',/^[a-zA-Z_][a-zA-Z0-9_]*/]
+ ];
+ let pos=0,tokens=[];
+ while(pos<input.length){
+  let match=null;
+  for(const [type,re] of patterns){const m=input.slice(pos).match(re);if(m){match={type,lex:m[0]};break;}}
+  if(!match) throw new Error(`Error léxico en la posición ${pos}: símbolo "${input[pos]}" no reconocido.`);
+  pos+=match.lex.length;if(match.type==='ESPACIO')continue;
+  if(match.type==='IDENTIFICADOR'){
+   const word=match.lex.toUpperCase();
+   if(['CREAR','CONSULTAR','ACTUALIZAR','ELIMINAR'].includes(word)){match.type='OPERACION';match.lex=word;}
+   else if(['PRODUCTO'].includes(word)){match.type='ENTIDAD';match.lex=word;}
+   else match.type='ATRIBUTO';
+  }
+  tokens.push(match);
+ }
+ return tokens;
+}
+function parse(t){
+ if(t.length<2)throw new Error('La solicitud está incompleta.');
+ const types=t.map(x=>x.type), vals=t.map(x=>x.lex), op=vals[0];
+ if(types[0]!=='OPERACION')throw new Error('La solicitud debe comenzar con una operación válida.');
+ if(types[1]!=='ENTIDAD')throw new Error('Se esperaba una entidad, por ejemplo PRODUCTO.');
+ if(op==='CONSULTAR'){if(t.length!==2)throw new Error('CONSULTAR PRODUCTO no admite elementos adicionales.');return{operacion:op,entidad:'PRODUCTO'};}
+ if(op==='CREAR'){
+  if(t.length!==5||types[2]!=='ATRIBUTO'||vals[2]!=='nombre'||types[3]!=='IGUAL'||types[4]!=='CADENA')throw new Error('Formato esperado: CREAR PRODUCTO nombre="Laptop"');
+  const nombre=vals[4].slice(1,-1);if(!nombre.trim())throw new Error('El nombre del producto no puede estar vacío.');
+  return{operacion:op,entidad:'PRODUCTO',nombre};
+ }
+ if(op==='ACTUALIZAR'){
+  if(t.length!==8||types[2]!=='ATRIBUTO'||vals[2]!=='id'||types[3]!=='IGUAL'||types[4]!=='NUMERO'||types[5]!=='ATRIBUTO'||vals[5]!=='nombre'||types[6]!=='IGUAL'||types[7]!=='CADENA')throw new Error('Formato esperado: ACTUALIZAR PRODUCTO id=1 nombre="Mouse"');
+  const nombre=vals[7].slice(1,-1);if(!nombre.trim())throw new Error('El nombre del producto no puede estar vacío.');
+  return{operacion:op,entidad:'PRODUCTO',id:+vals[4],nombre};
+ }
+ if(op==='ELIMINAR'){
+  if(t.length!==5||types[2]!=='ATRIBUTO'||vals[2]!=='id'||types[3]!=='IGUAL'||types[4]!=='NUMERO')throw new Error('Formato esperado: ELIMINAR PRODUCTO id=1');
+  return{operacion:op,entidad:'PRODUCTO',id:+vals[4]};
+ }
+ throw new Error('Operación no admitida.');
+}
+function execute(s){
+ if(s.operacion==='CREAR'){const id=products.length?Math.max(...products.map(p=>p.id))+1:1;products.push({id,nombre:s.nombre});save();return`Producto creado correctamente. ID: ${id}`;}
+ if(s.operacion==='CONSULTAR')return products.length?products.map(p=>`ID: ${p.id} | Nombre: ${p.nombre}`).join('\\n'):'No existen productos registrados.';
+ if(s.operacion==='ACTUALIZAR'){const p=products.find(p=>p.id===s.id);if(!p)return`No existe un producto con ID ${s.id}.`;p.nombre=s.nombre;save();return`Producto ${s.id} actualizado correctamente.`;}
+ if(s.operacion==='ELIMINAR'){const exists=products.some(p=>p.id===s.id);if(!exists)return`No existe un producto con ID ${s.id}.`;products=products.filter(p=>p.id!==s.id);save();return`Producto ${s.id} eliminado correctamente.`;}
+}
+function show(msg,kind){$('result').innerHTML='';const d=document.createElement('div');d.className='status '+kind;d.textContent=msg;$('result').appendChild(d);}
+function run(){
+ const input=$('command').value.trim();$('tokens').innerHTML='';$('structured').textContent='Sin datos todavía.';
+ if(!input){show('Ingresa una solicitud para comenzar.','info');return;}
+ try{
+  const tokens=lex(input);
+  tokens.forEach(t=>{const el=document.createElement('div');el.className='token';const b=document.createElement('b');b.textContent=t.type;const s=document.createElement('span');s.textContent=t.lex;el.append(b,s);$('tokens').appendChild(el);});
+  const parsed=parse(tokens);$('syntax').className='status ok';$('syntax').textContent='Análisis sintáctico: VÁLIDO. La estructura cumple las reglas definidas.';
+  $('structured').textContent=JSON.stringify(parsed,null,2);
+  const output=execute(parsed);validCount++;renderProducts();show(output,'ok');
+ }catch(e){errorCount++;renderProducts();$('syntax').className='status bad';$('syntax').textContent='Análisis rechazado: '+e.message;show(e.message,'bad');}
+}
+$('runBtn').onclick=run;
+$('clearBtn').onclick=()=>{$('command').value='';$('result').innerHTML='';$('tokens').innerHTML='<span class="sub">Los tokens aparecerán aquí después del análisis.</span>';$('syntax').className='status info';$('syntax').textContent='Esperando una solicitud para validar.';$('structured').textContent='Sin datos todavía.';};
+document.querySelectorAll('[data-cmd]').forEach(b=>b.onclick=()=>{$('command').value=b.dataset.cmd;});
+$('seedBtn').onclick=()=>{if(!products.length)products=[{id:1,nombre:'Laptop'},{id:2,nombre:'Mouse'},{id:3,nombre:'Teclado'}];save();show('Datos de ejemplo cargados.','ok');};
+$('resetBtn').onclick=()=>{if(confirm('¿Seguro que deseas vaciar el catálogo?')){products=[];save();show('Catálogo vacío.','ok');}};
+$('command').addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter')run();});
+renderProducts();
+</script>
+</body></html>
