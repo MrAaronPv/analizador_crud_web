@@ -93,26 +93,69 @@ function renderProducts(){
  body.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>{const p=products.find(x=>x.id===+b.dataset.edit);$('command').value=`ACTUALIZAR PRODUCTO id=${p.id} nombre="${p.nombre}"`;});
  body.querySelectorAll('[data-delete]').forEach(b=>b.onclick=()=>{const id=+b.dataset.delete;products=products.filter(p=>p.id!==id);save();show('Producto eliminado desde el catálogo.','ok');});
 }
-function lex(input){
- const patterns=[
-  ['ESPACIO',/^\\s+/],['CADENA',/^"[^"]*"/],['IGUAL',/^=/],['NUMERO',/^[0-9]+/],['IDENTIFICADOR',/^[a-zA-Z_][a-zA-Z0-9_]*/]
- ];
- let pos=0,tokens=[];
- while(pos<input.length){
-  let match=null;
-  for(const [type,re] of patterns){const m=input.slice(pos).match(re);if(m){match={type,lex:m[0]};break;}}
-  if(!match) throw new Error(`Error léxico en la posición ${pos}: símbolo "${input[pos]}" no reconocido.`);
-  pos+=match.lex.length;if(match.type==='ESPACIO')continue;
-  if(match.type==='IDENTIFICADOR'){
-   const word=match.lex.toUpperCase();
-   if(['CREAR','CONSULTAR','ACTUALIZAR','ELIMINAR'].includes(word)){match.type='OPERACION';match.lex=word;}
-   else if(['PRODUCTO'].includes(word)){match.type='ENTIDAD';match.lex=word;}
-   else match.type='ATRIBUTO';
-  }
-  tokens.push(match);
- }
- return tokens;
+
+function lex(input) {
+    const patterns = [
+        ['ESPACIO', /^\s+/],
+        ['CADENA', /^"[^"]*"/],
+        ['IGUAL', /^=/],
+        ['NUMERO', /^[0-9]+/],
+        ['IDENTIFICADOR', /^[a-zA-Z_][a-zA-Z0-9_]*/]
+    ];
+
+    let pos = 0;
+    let tokens = [];
+
+    while (pos < input.length) {
+        let match = null;
+
+        for (const [type, re] of patterns) {
+            const m = input.slice(pos).match(re);
+
+            if (m) {
+                match = {
+                    type: type,
+                    lex: m[0]
+                };
+                break;
+            }
+        }
+
+        if (!match) {
+            throw new Error(
+                `Error léxico en la posición ${pos}: símbolo "${input[pos]}" no reconocido.`
+            );
+        }
+
+        pos += match.lex.length;
+
+        // Ignorar espacios
+        if (match.type === 'ESPACIO') continue;
+
+        // Clasificar identificadores
+        if (match.type === 'IDENTIFICADOR') {
+            const word = match.lex.toUpperCase();
+
+            if (['CREAR', 'CONSULTAR', 'ACTUALIZAR', 'ELIMINAR'].includes(word)) {
+                match.type = 'OPERACION';
+                match.lex = word;
+            }
+            else if (word === 'PRODUCTO') {
+                match.type = 'ENTIDAD';
+                match.lex = word;
+            }
+            else {
+                match.type = 'ATRIBUTO';
+                match.lex = match.lex.toLowerCase();
+            }
+        }
+
+        tokens.push(match);
+    }
+
+    return tokens;
 }
+
 function parse(t){
  if(t.length<2)throw new Error('La solicitud está incompleta.');
  const types=t.map(x=>x.type), vals=t.map(x=>x.lex), op=vals[0];
